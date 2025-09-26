@@ -96,11 +96,15 @@ src/
 - **Polygon** (Chain ID: 137)  
 - **Arbitrum One** (Chain ID: 42161)
 - **Base** (Chain ID: 8453)
+- **Optimism** (Chain ID: 8543)
+- **Hedera** 
+- **Rootstock**
 
 ### Supported Tokens
 - **USDC** - USD Coin
 - **USDT** - Tether
-- **WETH** - Wrapped Ether
+- **DAI** - DAI 
+- **
 
 To add more networks or tokens, edit `src/config/web3.ts`.
 
@@ -138,16 +142,6 @@ The frontend is designed to integrate with the AgentRegistry smart contract. Key
 - `approvePaymentRequest()` - Merchant approval of requests
 - `completePayment()` - Execute approved payments
 
-## Telegram Bot Integration
-
-After registering an agent, you'll need to:
-
-1. Create a Telegram bot using @BotFather
-2. Set up webhook endpoints for payment notifications
-3. Configure your bot to communicate with the smart contract
-4. Handle user commands for payment requests
-
-See the documentation for detailed bot setup instructions.
 
 ## Customization
 
@@ -159,34 +153,6 @@ The app uses Tailwind CSS with custom components. Main style classes are in `src
 - `.input` - Form inputs
 - `.label` - Form labels
 
-### Adding Features
-To add new features:
-
-1. Create components in `src/components/`
-2. Add types in `src/types/`
-3. Update routing in `App.tsx`
-4. Add any needed configuration to `src/config/`
-
-## Deployment
-
-### Netlify/Vercel
-1. Build the project: `npm run build`
-2. Deploy the `dist/` folder
-3. Configure environment variables if needed
-
-### Self-hosting
-1. Build: `npm run build`
-2. Serve the `dist/` folder with any web server
-3. Configure CORS and CSP headers as needed
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
 ## License
 
 This project is licensed under the MIT License.
@@ -195,4 +161,3 @@ This project is licensed under the MIT License.
 
 **Ready to revolutionize cross-chain payments with AI agents!** 🚀
 
-For questions or support, please create an issue in the repository.
