@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { SiweMessage } from 'siwe';
+import { ethers } from 'ethers';
 import './App.css';
 
 // Simple in-memory auth mock (replace later with real backend / JWT)
@@ -35,7 +37,7 @@ const NavItem = ({ label, active, onClick }) => (
   >{label}</button>
 );
 
-const Layout = ({ current, setCurrent, logout, org }) => {
+const Layout = ({ current, setCurrent, logout, org, walletAddress, sessionId }) => {
   const items = ['Dashboard','Payments','Batch','Files','Billing','Developers','Settings'];
   return (
     <div className="ck-layout">
@@ -51,7 +53,7 @@ const Layout = ({ current, setCurrent, logout, org }) => {
         <button className="ck-logout" onClick={logout}>Logout</button>
       </aside>
       <main className="ck-main">
-        <Header title={current} />
+        <Header title={current} walletAddress={walletAddress} sessionId={sessionId} />
         <div className="ck-content">
           <Section name={current} />
         </div>
@@ -60,11 +62,21 @@ const Layout = ({ current, setCurrent, logout, org }) => {
   );
 };
 
-const Header = ({ title }) => (
-  <div className="ck-header">
-    <h1>{title}</h1>
+const Header = ({ title, walletAddress, sessionId }) => (
+  <div className="ck-header" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'1rem'}}>
+    <h1 style={{margin:0}}>{title}</h1>
+    <div style={{display:'flex',alignItems:'center',gap:'1rem'}}>
+      {sessionId && (
+        <div style={{fontSize:'.55rem',letterSpacing:'.08em',textTransform:'uppercase',color:'#64748b'}}>Session: <span style={{color:'#334155'}}>{sessionId.slice(0,8)}</span></div>
+      )}
+      {walletAddress && (
+        <div className="ck-wallet-pill">{shorten(walletAddress)}</div>
+      )}
+    </div>
   </div>
 );
+
+const shorten = (addr) => addr ? addr.slice(0,6)+'…'+addr.slice(-4) : '';
 
 // Placeholder content components
 const Section = ({ name }) => {
@@ -175,15 +187,64 @@ const Panel = ({ title, children }) => (
 const Login = ({ onLogin }) => {
   const [email,setEmail] = useState('');
   const [org,setOrg] = useState('');
+  const [ethStatus,setEthStatus] = useState('idle'); // idle | connecting | signing
+  const [ethError,setEthError] = useState(null);
   const submit = e => { e.preventDefault(); if(!email||!org) return; onLogin(email,org); };
+
+  const handleEthSignIn = async () => {
+    setEthError(null);
+    if(!window.ethereum){ setEthError('No wallet found. Install MetaMask.'); return; }
+    try {
+      setEthStatus('connecting');
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send('eth_requestAccounts', []);
+      const address = ethers.getAddress(accounts[0]);
+      setEthStatus('signing');
+      const nonce = Math.random().toString(36).slice(2,10);
+      const network = await provider.getNetwork();
+      const siwe = new SiweMessage({
+        domain: window.location.host,
+        address,
+        statement: 'Sign in to CoinKeep Business Dashboard',
+        uri: window.location.origin,
+        version: '1',
+        chainId: network.chainId,
+        nonce
+      });
+      const signer = await provider.getSigner();
+      const messageToSign = siwe.prepareMessage();
+      const signature = await signer.signMessage(messageToSign);
+      const sessionId = 'sess_' + crypto.randomUUID();
+      // Simulated backend call placeholder (would POST to /api/session)
+      try {
+        // await fetch('/api/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ sessionId, address, signature, message: messageToSign })});
+      } catch (e) {
+        console.warn('Failed to send session to backend (placeholder)', e);
+      }
+      localStorage.setItem('ck_user', JSON.stringify({ address, signature, sessionId, siwe: messageToSign, loggedInAt: Date.now() }));
+      onLogin(address + '@eth.local', 'Wallet Org');
+    } catch (e) {
+      setEthError(e.message);
+    } finally {
+      setEthStatus('idle');
+    }
+  };
+
   return (
     <div className="ck-auth-wrapper">
       <form className="ck-auth-form" onSubmit={submit}>
         <h1>Sign in to CoinKeep</h1>
         <label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required /></label>
         <label>Organization Name<input value={org} onChange={e=>setOrg(e.target.value)} required /></label>
-        <button type="submit">Continue</button>
-        <p className="ck-auth-note">This is a prototype. Authentication is mock only.</p>
+        <button type="submit" className="ck-primary-btn">Continue</button>
+        <div className="ck-divider"><span>OR</span></div>
+        <button type="button" className="ck-eth-btn" onClick={handleEthSignIn} disabled={ethStatus!== 'idle'}>
+          {ethStatus==='idle' && 'Sign in with Ethereum'}
+          {ethStatus==='connecting' && 'Connecting Wallet…'}
+          {ethStatus==='signing' && 'Signing Message…'}
+        </button>
+        {ethError && <div className="ck-err-msg">{ethError}</div>}
+        <p className="ck-auth-note">Prototype. Email is mock; Ethereum uses a message signature (no gas).</p>
       </form>
     </div>
   );
@@ -193,7 +254,8 @@ function App() {
   const { user, login, logout } = useAuth();
   const [current, setCurrent] = useState('Dashboard');
   if (!user) return <Login onLogin={login} />;
-  return <Layout current={current} setCurrent={setCurrent} logout={logout} org={user.org} />;
+  const parsed = user; // user already object with possible address & sessionId
+  return <Layout current={current} setCurrent={setCurrent} logout={logout} org={parsed.org || parsed.address} walletAddress={parsed.address} sessionId={parsed.sessionId} />;
 }
 
 export default App;
