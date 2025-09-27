@@ -11,6 +11,13 @@ body, html, #root { height: 100%; }
 .ck-auth-form button { background:#2563eb; color:#fff; border:none; border-radius:10px; padding:.85rem 1rem; font-size:.95rem; font-weight:600; cursor:pointer; transition:.2s; }
 .ck-auth-form button:hover { background:#1d4ed8; }
 .ck-auth-note { margin:0; font-size:.7rem; color:#64748b; text-align:center; }
+.ck-primary-btn { background:#2563eb; }
+.ck-eth-btn { margin-top:.25rem; background:#1e293b; color:#f1f5f9; border:1px solid #334155; border-radius:10px; padding:.8rem 1rem; font-size:.85rem; font-weight:600; cursor:pointer; display:flex; justify-content:center; gap:.5rem; transition:.25s; }
+.ck-eth-btn:hover:not(:disabled) { background:#273549; }
+.ck-eth-btn:disabled { opacity:.6; cursor:default; }
+.ck-divider { display:flex; align-items:center; gap:.75rem; font-size:.55rem; letter-spacing:.12em; font-weight:700; color:#64748b; margin:.9rem 0 .4rem; }
+.ck-divider:before,.ck-divider:after { content:""; flex:1; height:1px; background:linear-gradient(90deg,#e2e8f0,#cbd5e1); }
+.ck-err-msg { background:#7f1d1d; color:#fecaca; padding:.6rem .75rem; font-size:.65rem; border-radius:8px; margin-top:.6rem; font-weight:600; text-align:center; }
 
 /* Layout */
 .ck-layout { display:flex; min-height:100vh; background:#f1f5f9; color:#0f172a; }
@@ -28,6 +35,7 @@ body, html, #root { height: 100%; }
 .ck-header { padding:1.1rem 1.4rem .6rem; background:#f1f5f9; position:sticky; top:0; z-index:10; }
 .ck-header h1 { margin:0; font-size:1.15rem; font-weight:600; }
 .ck-content { padding:1rem 1.4rem 2.4rem; }
+.ck-wallet-pill { background:#0f172a; color:#f1f5f9; font-size:.65rem; letter-spacing:.05em; padding:.5rem .7rem; border-radius:999px; font-weight:600; border:1px solid #334155; display:inline-flex; align-items:center; gap:.4rem; }
 
 /* Panels */
 .ck-panel-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); }
